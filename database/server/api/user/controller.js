@@ -25,7 +25,7 @@ async function create(req, res) {
 
         let registrationResponse = await registrationModel.findOne({ email: registrationData.email }).exec();
         if (registrationResponse) {
-            return Promise.reject('Email Already Present.');
+            return res.send('Email Already Present.');
         }
         let registrationSave = await registrationData.save();
         if (!registrationSave) {

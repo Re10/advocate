@@ -4,27 +4,29 @@ const { validationService } = require('../../helper');
 async function create(req, res) {
     try {
        console.log('Case Deatil.', get(req, 'body', ''));
-        let caseReviewVar = [];
-        for (let i = 0; i < get(req, 'body.caseReviews', '').length; i++) {
-            caseReviewVar[i] = {
-                date: req.body.caseReviews[i].date,
-                remark: req.body.caseReviews[i].remark
-            }
-        }
+    //    let casereviewerarr = [];
+    //    for (let i = 0; i < get(req, 'body.caseReviews', '').length; i++) {
+    //     casereviewerarr[i] = {
+    //         date: req.body.caseReviews[i].date,
+    //         remark: req.body.caseReviews[i].remark
+    //     }
+    // }
+        
         let caseData = new casemodel();
         caseData.caseId = get(req, 'body.caseId', '');
         caseData.caseName = get(req, 'body.caseName', '');
-        caseData.advocateRefId = get(req, 'body.advocateRefId', '');
-        caseData.userId = get(req, 'body.userId', '');
+        // caseData.advocateRefId = get(req, 'body.advocateRefId', '');
+        // caseData.userId = get(req, 'body.userId', '');
         caseData.courtId = get(req, 'body.courtId', '');
         caseData.caseType = get(req, 'body.caseType', '');
-        caseData.review=caseReviewVar;
+        caseData.oppositeParty=get(req,'body.oppositeParty','');
+        // caseData.review=casereviewerarr;
         console.log('Details=>',caseData);
      
-        let validationResponse = await validationService.validation(caseData);
-        if (validationResponse === false) {
-            return Promise.reject('Validation Fails.');
-        }
+        // let validationResponse = await validationService.validation(caseData);
+        // if (validationResponse === false) {
+        //     return Promise.reject('Validation Fails.');
+        // }
       
         let response = await casemodel.findOne({ 'caseId': get(req, 'body.caseId', '') });
         if (response) {
@@ -92,6 +94,7 @@ async function update(req, res) {
         record.userId = get(req, 'body.userId', '');
         record.courtId = get(req, 'body.courtId', '');
         record.caseType = get(req, 'body.caseType', '');
+        record.oppositeParty=get(req,'body.oppositeParty','');
         record.review=caseReviewVar;
       
         console.log('Record Details=>', record);

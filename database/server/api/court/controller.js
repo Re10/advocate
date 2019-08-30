@@ -14,11 +14,12 @@ async function create(req, res) {
         if (validationResponse === false) {
             return Promise.reject('Validation Fail.');
         }
-        console.log('valid');
+        
         let record = await courtModel.findOne({ 'courtName': get(req, 'body.courtName', '') });
         if (record) {
-            return Promise.reject('Court Name Already Present');
+            return res.send('Court Name Already Present');
         }
+       
         await courtDetail.save();
         console.log('Document Save Successfully.');
         return {

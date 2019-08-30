@@ -11,15 +11,16 @@ const caseSchema=new Schema({
         type:String,
         required: true
     },
+    oppositeParty:String,
     advocateRefId:{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'advocate'
         
     },
-    userId:{
+    userId:[{
         type:mongoose.Schema.Types.ObjectId,
         ref:"registration"
-    },
+    }],
     courtId:{
         type:mongoose.Schema.Types.ObjectId,
         ref:"court"

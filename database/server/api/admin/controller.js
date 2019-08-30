@@ -1,6 +1,6 @@
 const advocateModel = require('./model');
 const get = require('lodash/get');
-const { validationService } = require('../../helper');
+const jwt=require('jsonwebtoken')
 async function create(req, res) {
     try {
         console.log('Advocate Deatils', get(req, 'body', ''), "file is:", get(req, 'file', ''));
@@ -12,36 +12,27 @@ async function create(req, res) {
         advocateData.advocateskills = get(req, 'body.advocateskills', '');
         advocateData.image = get(req, 'file.filename', '');
 
-        let validationServiceResponse = await validationService.validation(get(req, 'body', ''));
-        if (validationServiceResponse === false) {
-            throw new Error('Validation Fail');
-        }
-        console.log('after validation.');
         let record = await advocateModel.findOne({ 'email': get(req, 'body.email', '') });
         if (record) {
-            throw new Error('Email Already Present.');
+            return res.send( 'Email Already Present.');
         }
-        console.log('after validation.',record);
-       let saveFunction= await advocateData.save();
-       if(!saveFunction){
-           throw new Error('Doc not save');
-       }
-      
-        res.status(200).json({ message: 'document successfully inserted.' });
-        return {
-            status: 200,
-            message: 'Document Save Successfully .'
+        let saveResponse=await advocateData.save();
+        if(!saveResponse){
+            throw new Error('Document Not Save.')
+        }
+     
+       let payload=({subject:saveResponse._id});
+       let token=jwt.sign(payload,'secretkey');
+       console.log("token===>",token);
 
-        };
-    } catch (error) {
-        console.log("Error Occure in create function", error);
+      return res.status(200).json({ message: 'document successfully inserted.' ,doc:token});
+        } catch (error) {
+        console.log("Error Occur in create function", error);
         return {
             status: 500,
             message: 'Internal Server Error.'
         }
-    };
-
-
+    }
 }
 
 async function getRecord(req, res) {
@@ -54,12 +45,8 @@ async function getRecord(req, res) {
         if (!record) {
             return Promise.reject('Record Not Found.');
         }
-        res.status(200).json({ status: 'success', message: 'success', doc: record });
-        return {
-            status: 200,
-            message: 'Success.'
-        }
-
+        return res.status(200).json({ status:200 , message: 'success', doc: record });
+        
     } catch (error) {
         return {
             status: 500,
@@ -74,14 +61,8 @@ async function update(req, res) {
         let response = await advocateModel.findOne({ '_id': req.query.id, 'flag': true });
 
         if (!response) {
-            return Promise.reject('Record Not Found.');
+              return res.send('Record Not Found.');
         }
-
-        let validationServiceResponse = await validationService.validation(get(req, 'body', ''));
-        if (validationServiceResponse === false) {
-            throw new Error('Validation Fail');
-        }
-
         response.name = get(req, 'body.name', '');
         response.phoneNo = get(req, 'body.phoneNo', '');
         response.officeAddress = get(req, 'body.officeAddress', '');
@@ -107,7 +88,7 @@ async function deleteOne(req, res) {
         console.log('Delete Record', req.query.id);
         let record = await advocateModel.findById({ '_id': req.query.id });
         if (!record) {
-            throw new Error('Record Not Found.');
+           return Promise.reject('Record Not Found.');
         }
         console.log('record is');
         record.flag = false;
